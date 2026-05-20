@@ -47,7 +47,6 @@ select option{background:#161B22;color:#E6EDF3;}
 .tweet-card{background:#0D2B22;border:1px solid #1D9E75;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;}
 .tweet-pill{font-size:11px;font-weight:500;background:#0F3D2A;color:#3FB884;padding:3px 8px;border-radius:20px;border:0.5px solid #1D9E75;}
 .tweet-text{font-size:15px;color:#E6EDF3;line-height:1.65;margin-top:8px;}
-.tweet-traduccion{font-size:13px;color:#7D8590;line-height:1.6;margin-top:8px;padding-top:8px;border-top:0.5px solid #1D4A3A;font-style:italic;}
 .sec-num{width:22px;height:22px;border-radius:50%;background:#1D9E75;color:#fff;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .sec-name{font-size:16px;font-weight:500;color:#E6EDF3;}
 .sec-label{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
@@ -162,8 +161,7 @@ select option{background:#161B22;color:#E6EDF3;}
           <i class="ti ti-brand-twitter" style="font-size:14px;color:#3FB884;"></i>
           <span class="tweet-pill" id="ctx-dataset">SemEval 2017</span>
         </div>
-        <p class="tweet-text" id="ctx-tweet-text"></p>
-        <p class="tweet-traduccion" id="ctx-tweet-trad"></p>
+        <p class="tweet-text" id="ctx-tweet-trad"></p>
       </div>
       <p style="font-size:13px;color:#7D8590;line-height:1.6;">Si no conoces a las personas o el evento mencionado, investiga brevemente en Google antes de continuar.</p>
     </div>
@@ -184,8 +182,7 @@ select option{background:#161B22;color:#E6EDF3;}
         <i class="ti ti-brand-twitter" style="font-size:14px;color:#3FB884;"></i>
         <span class="tweet-pill" id="tweet-dataset">SemEval 2017</span>
       </div>
-      <p class="tweet-text" id="tweet-text"></p>
-      <p class="tweet-traduccion" id="tweet-trad"></p>
+      <p class="tweet-text" id="tweet-trad"></p>
     </div>
     <div id="sec-content"></div>
     <div class="nav-row">
@@ -367,8 +364,7 @@ async function submitSocio() {
 function showContext(ci) {
   const tweet = TWEETS[ci];
   document.getElementById('ctx-badge').textContent = 'Comentario ' + (ci+1) + ' de ' + TWEETS.length;
-  document.getElementById('ctx-tweet-text').textContent = tweet.tweet;
-  document.getElementById('ctx-tweet-trad').textContent = tweet.traduccion || '';
+  document.getElementById('ctx-tweet-trad').textContent = tweet.traduccion || tweet.tweet;
   document.getElementById('ctx-dataset').textContent = 'SemEval ' + tweet.dataset;
   commentIdx = ci;
   show('s-ctx');
@@ -382,8 +378,7 @@ function loadSec(ci, si) {
   commentIdx = ci; secIdx = si; selectedClass = null;
   const tweet = TWEETS[ci];
   document.getElementById('comment-badge').textContent = 'Comentario ' + (ci+1) + ' de ' + TWEETS.length;
-  document.getElementById('tweet-text').textContent = tweet.tweet;
-  document.getElementById('tweet-trad').textContent = tweet.traduccion || '';
+  document.getElementById('tweet-trad').textContent = tweet.traduccion || tweet.tweet;
   document.getElementById('tweet-dataset').textContent = 'SemEval ' + tweet.dataset;
   buildStepper(si);
 
