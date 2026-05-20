@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HERMES — Estudio de razonamiento pragmático</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;background:#0D1117;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+.app{min-height:100vh;background:#0D1117;padding:1.5rem;}
+.card{background:#161B22;border:0.5px solid #30363D;border-radius:12px;padding:1.75rem;max-width:640px;margin:0 auto;}
+.screen{display:none;}.screen.active{display:block;}
+.logo-box{width:36px;height:36px;border-radius:8px;background:#1D9E75;display:flex;align-items:center;justify-content:center;}
+.app-name{font-size:15px;font-weight:500;color:#E6EDF3;}
+.app-sub{font-size:12px;color:#7D8590;}
+input[type=text],input[type=number],select{width:100%;font-size:14px;padding:10px 12px;border-radius:8px;border:1.5px solid #30363D;background:#0D1117;color:#E6EDF3;font-family:inherit;}
+input::placeholder{color:#484F58;}
+input:focus,select:focus{outline:none;border-color:#1D9E75;}
+textarea{width:100%;font-size:14px;padding:10px 12px;border-radius:8px;border:1.5px solid #30363D;background:#0D1117;color:#E6EDF3;font-family:inherit;resize:vertical;min-height:100px;line-height:1.6;}
+textarea::placeholder{color:#484F58;}
+textarea:focus{outline:none;border-color:#1D9E75;}
+select option{background:#161B22;color:#E6EDF3;}
+.field{margin-bottom:1.1rem;}
+.field label{font-size:13px;font-weight:500;color:#8B949E;display:block;margin-bottom:6px;}
+.radio-group{display:flex;gap:8px;flex-wrap:wrap;}
+.radio-btn{padding:8px 14px;border:1.5px solid #30363D;border-radius:8px;background:#21262D;cursor:pointer;font-size:13px;color:#C9D1D9;transition:all 0.15s;user-select:none;}
+.radio-btn:hover{border-color:#1D9E75;color:#3FB884;}
+.radio-btn.selected{background:#0D2B22;border-color:#1D9E75;color:#3FB884;font-weight:500;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:8px;font-size:14px;cursor:pointer;border:none;font-family:inherit;}
+.btn-primary{background:#1D9E75;color:#fff;}
+.btn-primary:hover{background:#0F6E56;}
+.btn-primary:disabled{background:#1D4A3A;color:#7D8590;cursor:not-allowed;}
+.btn-secondary{background:#21262D;color:#8B949E;border:0.5px solid #30363D;}
+.btn-secondary:hover{border-color:#1D9E75;color:#1D9E75;}
+.btn-block{width:100%;justify-content:center;}
+.stepper{display:flex;align-items:center;margin-bottom:1.75rem;}
+.step-item{display:flex;align-items:center;flex:1;}
+.step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0;transition:all 0.2s;}
+.step-dot.inactive{background:#21262D;color:#484F58;border:1.5px solid #30363D;}
+.step-dot.active{background:#1D9E75;color:#fff;}
+.step-dot.done{background:#0D2B22;color:#3FB884;border:1.5px solid #1D9E75;}
+.step-line{flex:1;height:2px;background:#21262D;}
+.step-line.done{background:#1D9E75;}
+.tweet-card{background:#0D2B22;border:1px solid #1D9E75;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;}
+.tweet-pill{font-size:11px;font-weight:500;background:#0F3D2A;color:#3FB884;padding:3px 8px;border-radius:20px;border:0.5px solid #1D9E75;}
+.tweet-text{font-size:15px;color:#E6EDF3;line-height:1.65;margin-top:8px;}
+.tweet-traduccion{font-size:13px;color:#7D8590;line-height:1.6;margin-top:8px;padding-top:8px;border-top:0.5px solid #1D4A3A;font-style:italic;}
+.sec-num{width:22px;height:22px;border-radius:50%;background:#1D9E75;color:#fff;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-name{font-size:16px;font-weight:500;color:#E6EDF3;}
+.sec-label{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.sec-intro{font-size:13px;color:#7D8590;line-height:1.6;margin-bottom:12px;padding-left:30px;}
+.guide-block{background:#1A2232;border:0.5px solid #30363D;border-radius:8px;padding:12px 14px;margin-bottom:14px;}
+.guide-note{font-size:12px;color:#7D8590;line-height:1.55;margin-bottom:10px;font-style:italic;}
+.guide-question{font-size:13px;color:#8B949E;line-height:1.6;margin-bottom:6px;padding-left:10px;border-left:2px solid #30363D;}
+.guide-question:last-child{margin-bottom:0;}
+.classify-radio{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+.radio-option{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid #30363D;border-radius:8px;background:#21262D;cursor:pointer;font-size:14px;color:#C9D1D9;transition:all 0.15s;user-select:none;}
+.radio-option:hover{border-color:#1D9E75;background:#0D2B22;color:#3FB884;}
+.radio-option.selected{background:#0D2B22;border-color:#1D9E75;color:#3FB884;font-weight:500;}
+.radio-circle{width:16px;height:16px;border-radius:50%;border:2px solid #484F58;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.radio-option.selected .radio-circle{border-color:#1D9E75;}
+.radio-circle.filled::after{content:'';width:8px;height:8px;border-radius:50%;background:#1D9E75;display:block;}
+.comment-badge{font-size:12px;color:#7D8590;background:#21262D;border:0.5px solid #30363D;border-radius:20px;padding:4px 10px;margin-bottom:1.25rem;display:inline-block;}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;padding-top:1.25rem;border-top:0.5px solid #21262D;}
+.done-circle{width:64px;height:64px;border-radius:50%;background:#0D2B22;border:2px solid #1D9E75;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;}
+.divider{border:none;border-top:0.5px solid #21262D;margin:1.25rem 0;}
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(13,17,23,0.85);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+.loading-overlay.active{display:flex;}
+.spinner{width:36px;height:36px;border:3px solid #30363D;border-top-color:#1D9E75;border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.error-msg{background:#2D1A1A;border:1px solid #6E2424;color:#E06C6C;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:1rem;display:none;}
+</style>
+</head>
+<body>
+
+<div id="loading-overlay" class="loading-overlay">
+  <div class="spinner"></div>
+  <p style="font-size:13px;color:#7D8590;">Conectando con el servidor...</p>
+</div>
+
+<div class="app">
+
+<!-- LOGIN -->
+<div id="s-login" class="screen active">
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;">
+      <div class="logo-box"><i class="ti ti-brain" style="font-size:18px;color:#fff;"></i></div>
+      <div><div class="app-name">HERMES</div><div class="app-sub">Estudio de razonamiento pragmático</div></div>
+    </div>
+    <p style="font-size:14px;color:#7D8590;line-height:1.6;margin-bottom:1.5rem;">Evaluarás <strong style="color:#E6EDF3;">3 comentarios de Twitter</strong> aplicando el Modelo de Proceso Componente de Scherer. Por cada comentario completarás 4 pasos de razonamiento y una clasificación final. No hay respuestas correctas o incorrectas.</p>
+    <div id="login-error" class="error-msg"></div>
+    <div class="field">
+      <label>Número de documento</label>
+      <input type="text" id="student-id" placeholder="Ingresa tu número de documento" />
+    </div>
+    <button class="btn btn-primary btn-block" id="btn-login" onclick="startSession()">Continuar <i class="ti ti-arrow-right"></i></button>
+  </div>
+</div>
+
+<!-- SOCIODEMOGRÁFICO -->
+<div id="s-socio" class="screen">
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;">
+      <div class="logo-box"><i class="ti ti-user" style="font-size:18px;color:#fff;"></i></div>
+      <div><div class="app-name">Datos del participante</div><div class="app-sub">Información confidencial, solo con fines investigativos</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Edad</label>
+        <input type="number" id="edad" placeholder="Ej: 22" min="16" max="60" />
+      </div>
+      <div class="field">
+        <label>Sexo</label>
+        <select id="sexo">
+          <option value="" disabled selected>Selecciona...</option>
+          <option value="femenino">Femenino</option>
+          <option value="masculino">Masculino</option>
+          <option value="no_binario">No binario</option>
+          <option value="prefiero_no_decir">Prefiero no decir</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Carrera</label>
+      <input type="text" id="carrera" placeholder="Ej: Psicología" />
+    </div>
+    <div class="field">
+      <label>Semestre actual</label>
+      <input type="number" id="semestre" placeholder="Ej: 4" min="1" max="16" />
+    </div>
+    <hr class="divider">
+    <div class="field">
+      <label>¿Con qué frecuencia usas Twitter / X?</label>
+      <div class="radio-group" id="twitter-group">
+        <div class="radio-btn" onclick="selectRadio(this,'twitter-group','nunca')">Nunca</div>
+        <div class="radio-btn" onclick="selectRadio(this,'twitter-group','ocasional')">Ocasionalmente</div>
+        <div class="radio-btn" onclick="selectRadio(this,'twitter-group','semanal')">Semanalmente</div>
+        <div class="radio-btn" onclick="selectRadio(this,'twitter-group','diario')">A diario</div>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="show('s-login')"><i class="ti ti-arrow-left"></i> Atrás</button>
+      <button class="btn btn-primary" onclick="submitSocio()">Comenzar evaluación <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTEXTO -->
+<div id="s-ctx" class="screen">
+  <div class="card">
+    <span class="comment-badge" id="ctx-badge">Comentario 1 de 3</span>
+    <div style="margin-bottom:1.25rem;">
+      <div class="sec-label">
+        <div class="sec-num" style="background:#2D5FA6;"><i class="ti ti-info-small" style="font-size:14px;color:#fff;"></i></div>
+        <span class="sec-name">Contexto del comentario</span>
+      </div>
+      <div class="tweet-card" style="margin-top:10px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <i class="ti ti-brand-twitter" style="font-size:14px;color:#3FB884;"></i>
+          <span class="tweet-pill" id="ctx-dataset">SemEval 2017</span>
+        </div>
+        <p class="tweet-text" id="ctx-tweet-text"></p>
+        <p class="tweet-traduccion" id="ctx-tweet-trad"></p>
+      </div>
+      <p style="font-size:13px;color:#7D8590;line-height:1.6;">Si no conoces a las personas o el evento mencionado, investiga brevemente en Google antes de continuar.</p>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="ctxBack()"><i class="ti ti-arrow-left"></i> Atrás</button>
+      <button class="btn btn-primary" onclick="ctxNext()">Comenzar análisis <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- SECs -->
+<div id="s-sec" class="screen">
+  <div class="card">
+    <span class="comment-badge" id="comment-badge">Comentario 1 de 3</span>
+    <div class="stepper" id="stepper"></div>
+    <div class="tweet-card">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <i class="ti ti-brand-twitter" style="font-size:14px;color:#3FB884;"></i>
+        <span class="tweet-pill" id="tweet-dataset">SemEval 2017</span>
+      </div>
+      <p class="tweet-text" id="tweet-text"></p>
+      <p class="tweet-traduccion" id="tweet-trad"></p>
+    </div>
+    <div id="sec-content"></div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" onclick="goBack()"><i class="ti ti-arrow-left"></i> Atrás</button>
+      <button class="btn btn-primary" id="btn-next" onclick="goNext()">Siguiente <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- FIN -->
+<div id="s-done" class="screen">
+  <div class="card" style="text-align:center;padding:2.5rem;">
+    <div class="done-circle"><i class="ti ti-check" style="font-size:30px;color:#1D9E75;"></i></div>
+    <p style="font-size:18px;font-weight:500;color:#E6EDF3;margin-bottom:8px;">¡Evaluación completada!</p>
+    <p style="font-size:14px;color:#7D8590;line-height:1.6;">Tus trazas de razonamiento han sido guardadas.<br>Muchas gracias por tu participación en el estudio.</p>
+  </div>
+</div>
+
+</div>
+
+<script>
+const BACKEND = 'https://script.google.com/a/macros/unal.edu.co/s/AKfycbxkQySzJrnLs0jlgAl0FW521f-1vdFULjovZaNbCgeKhmKARE_9CEKGfS1Y16tgtHV7/exec';
+
+const SECS = [
+  {
+    num:1, name:'Relevancia',
+    intro:'Lee el comentario y explica, con tus propias palabras, qué está pasando y por qué este evento podría ser relevante para el autor. Ten presente que el análisis es sobre quien escribió el comentario.',
+    questions:[
+      '¿El autor reacciona como si esto fuera algo nuevo, inesperado, o distinto a lo que anticipaba?',
+      '¿Las palabras que elige el autor transmiten agrado o rechazo hacia lo que está describiendo?',
+      '¿Hay algo personal en juego para la identidad del autor, sus valores, algo que le importa profundamente?'
+    ]
+  },
+  {
+    num:2, name:'Implicaciones',
+    intro:'Basándote en lo que escribiste en el paso 1, analiza qué significa esta situación para el autor, qué consecuencias anticipa y quién cree que es responsable.',
+    questions:[
+      '¿A quién o a qué le atribuye el autor la responsabilidad de lo que ocurrió?',
+      '¿El autor expresa que lo que ocurrió es diferente a lo que esperaba?',
+      '¿Las palabras del autor sugieren que este evento favorece o perjudica algo que le importa?',
+      '¿El autor transmite que esto requiere atención o acción inmediata?'
+    ]
+  },
+  {
+    num:3, name:'Afrontamiento',
+    intro:'Basándote en los pasos anteriores, analiza si el autor siente que puede hacer algo ante esta situación — si tiene control, recursos para actuar, o si muestra señales de adaptarse.',
+    questions:[
+      '¿El autor sugiere que esta situación puede ser modificada o prevenida?',
+      '¿El autor indica que tiene o no los recursos necesarios para actuar?',
+      '¿El autor muestra indicios de reencuadrar la situación o encontrar una salida alternativa?'
+    ]
+  },
+  {
+    num:4, name:'Significancia normativa',
+    intro:'Basándote en los pasos anteriores, analiza si el autor está defendiendo un valor personal o apelando a una norma social.',
+    questions:[
+      '¿El autor sugiere que esta situación contradice o reafirma sus propios valores?',
+      '¿El autor apela a lo que su entorno social consideraría aceptable o esperaría de alguien en esta situación?'
+    ]
+  }
+];
+
+const radioVals = {};
+let commentIdx = 0, secIdx = 0, selectedClass = null, studentId = '';
+let TWEETS = [];
+let socioData = {};
+let currentData = {};
+let dataset = '';
+
+// ── Helpers ──────────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function loading(on) {
+  document.getElementById('loading-overlay').classList.toggle('active', on);
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+function hideError(id) {
+  const el = document.getElementById(id);
+  if (el) { el.style.display = 'none'; }
+}
+
+function selectRadio(el, group, val) {
+  document.querySelectorAll('#' + group + ' .radio-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  radioVals[group] = val;
+}
+
+async function api(method, params) {
+  if (method === 'GET') {
+    const qs = new URLSearchParams(params).toString();
+    const res = await fetch(BACKEND + '?' + qs);
+    return res.json();
+  } else {
+    const res = await fetch(BACKEND, {
+      method: 'POST',
+      body: JSON.stringify(params)
+    });
+    return res.json();
+  }
+}
+
+// ── 1. Login ─────────────────────────────────────────────────
+async function startSession() {
+  const v = document.getElementById('student-id').value.trim();
+  if (!v) { document.getElementById('student-id').focus(); return; }
+  hideError('login-error');
+  loading(true);
+  document.getElementById('btn-login').disabled = true;
+  try {
+    const res = await api('GET', { action: 'registrar', documento: v });
+    if (res.error) { showError('login-error', 'Error: ' + res.error); return; }
+    studentId = v;
+    dataset = res.dataset;
+    // Cargar tweets completos
+    const tw = await api('GET', { action: 'tweets', documento: v });
+    if (tw.error) { showError('login-error', 'Error cargando tweets: ' + tw.error); return; }
+    TWEETS = tw.tweets;
+    show('s-socio');
+  } catch(e) {
+    showError('login-error', 'No se pudo conectar al servidor. Verifica tu conexión.');
+  } finally {
+    loading(false);
+    document.getElementById('btn-login').disabled = false;
+  }
+}
+
+// ── 2. Datos sociodemográficos ────────────────────────────────
+async function submitSocio() {
+  const edad     = document.getElementById('edad').value.trim();
+  const sexo     = document.getElementById('sexo').value;
+  const carrera  = document.getElementById('carrera').value.trim();
+  const semestre = document.getElementById('semestre').value.trim();
+  const twitter  = radioVals['twitter-group'];
+
+  if (!edad || !sexo || !carrera || !semestre || !twitter) {
+    const m = [];
+    if (!edad) m.push('edad'); if (!sexo) m.push('sexo');
+    if (!carrera) m.push('carrera'); if (!semestre) m.push('semestre');
+    if (!twitter) m.push('frecuencia de Twitter');
+    alert('Por favor completa: ' + m.join(', '));
+    return;
+  }
+
+  socioData = { edad, sexo, carrera, semestre, twitter_frecuencia: twitter };
+  loading(true);
+  try {
+    await api('POST', { action: 'bio', documento: studentId, ...socioData });
+  } catch(e) { /* continuar aunque falle */ }
+  finally { loading(false); }
+  showContext(0);
+}
+
+// ── 3. Pantalla de contexto ───────────────────────────────────
+function showContext(ci) {
+  const tweet = TWEETS[ci];
+  document.getElementById('ctx-badge').textContent = 'Comentario ' + (ci+1) + ' de ' + TWEETS.length;
+  document.getElementById('ctx-tweet-text').textContent = tweet.tweet;
+  document.getElementById('ctx-tweet-trad').textContent = tweet.traduccion || '';
+  document.getElementById('ctx-dataset').textContent = 'SemEval ' + tweet.dataset;
+  commentIdx = ci;
+  show('s-ctx');
+}
+
+function ctxNext() { loadSec(commentIdx, 0); show('s-sec'); }
+function ctxBack() { if (commentIdx === 0) show('s-socio'); else loadSec(commentIdx-1, 4); show('s-sec'); }
+
+// ── 4. SECs ───────────────────────────────────────────────────
+function loadSec(ci, si) {
+  commentIdx = ci; secIdx = si; selectedClass = null;
+  const tweet = TWEETS[ci];
+  document.getElementById('comment-badge').textContent = 'Comentario ' + (ci+1) + ' de ' + TWEETS.length;
+  document.getElementById('tweet-text').textContent = tweet.tweet;
+  document.getElementById('tweet-trad').textContent = tweet.traduccion || '';
+  document.getElementById('tweet-dataset').textContent = 'SemEval ' + tweet.dataset;
+  buildStepper(si);
+
+  const content = document.getElementById('sec-content');
+  if (si < 4) {
+    const sec = SECS[si];
+    const qHtml = sec.questions.map(q => `<p class="guide-question">${q}</p>`).join('');
+    content.innerHTML = `
+      <div class="sec-label">
+        <div class="sec-num">${sec.num}</div>
+        <span class="sec-name">Paso ${sec.num} – ${sec.name}</span>
+      </div>
+      <p class="sec-intro">${sec.intro}</p>
+      <div class="guide-block">
+        <p class="guide-note">Las preguntas son solo una guía, no tienes que responderlas todas.</p>
+        ${qHtml}
+      </div>
+      <textarea id="sec-textarea" placeholder="Escribe tu razonamiento aquí..."></textarea>`;
+    document.getElementById('btn-next').innerHTML = 'Siguiente <i class="ti ti-arrow-right"></i>';
+  } else {
+    const isIrony = tweet.dataset === '2018';
+    const opts = isIrony
+      ? [{val:'irony',label:'Ironía'},{val:'not_irony',label:'No ironía'}]
+      : [{val:'positive',label:'Positivo'},{val:'neutral',label:'Neutro'},{val:'negative',label:'Negativo'}];
+    content.innerHTML = `
+      <div class="sec-label">
+        <div class="sec-num" style="background:#B08010;"><i class="ti ti-tag" style="font-size:11px;color:#fff;"></i></div>
+        <span class="sec-name">Clasificación final</span>
+      </div>
+      <div class="guide-block" style="margin-bottom:1rem;">
+        <p class="guide-question">Basándote en los cuatro pasos, ¿cuál es el sentimiento predominante del autor?</p>
+        <p class="guide-question">Explica tu elección en 2-3 oraciones.</p>
+      </div>
+      <textarea id="sec-textarea" placeholder="Escribe tu justificación aquí..." style="margin-bottom:1rem;"></textarea>
+      <p style="font-size:13px;color:#7D8590;margin-bottom:8px;">Selecciona la clasificación:</p>
+      <div class="classify-radio" id="classify-grid">
+        ${opts.map(o => `
+          <label class="radio-option" onclick="selectClass(this,'${o.val}')">
+            <span class="radio-circle"></span>
+            <span>${o.label}</span>
+          </label>`).join('')}
+      </div>`;
+    document.getElementById('btn-next').innerHTML = (ci+1 < TWEETS.length)
+      ? 'Siguiente comentario <i class="ti ti-arrow-right"></i>'
+      : 'Finalizar <i class="ti ti-check"></i>';
+  }
+  currentData = { ci, si };
+}
+
+function buildStepper(active) {
+  const s = document.getElementById('stepper');
+  const labels = ['Relevancia','Implicaciones','Afrontamiento','Normativa','Clasificar'];
+  s.innerHTML = '';
+  labels.forEach((l,i) => {
+    const cls = i < active ? 'done' : i === active ? 'active' : 'inactive';
+    const icon = i < active ? '<i class="ti ti-check" style="font-size:11px;"></i>' : (i+1).toString();
+    s.innerHTML += `<div class="step-item"><div class="step-dot ${cls}" title="${l}">${icon}</div>${i < labels.length-1 ? `<div class="step-line${i < active ? ' done' : ''}"></div>` : ''}</div>`;
+  });
+}
+
+function selectClass(el, val) {
+  document.querySelectorAll('.radio-option').forEach(b => {
+    b.classList.remove('selected');
+    const rc = b.querySelector('.radio-circle');
+    if (rc) rc.classList.remove('filled');
+  });
+  el.classList.add('selected');
+  const rc = el.querySelector('.radio-circle');
+  if (rc) rc.classList.add('filled');
+  selectedClass = val;
+}
+
+async function goNext() {
+  const { ci, si } = currentData;
+  if (si < 4) {
+    const ta = document.getElementById('sec-textarea');
+    if (!ta || !ta.value.trim()) {
+      ta.focus(); ta.style.borderColor = '#E24B4A';
+      setTimeout(() => ta.style.borderColor = '#30363D', 1500); return;
+    }
+    if (!window._responses) window._responses = [];
+    if (!window._responses[ci]) window._responses[ci] = { secs: {} };
+    window._responses[ci].secs['sec' + (si+1)] = ta.value.trim();
+    loadSec(ci, si+1);
+  } else {
+    const ta = document.getElementById('sec-textarea');
+    if (!selectedClass) {
+      const g = document.getElementById('classify-grid');
+      g.style.outline = '2px solid #E24B4A'; g.style.borderRadius = '8px';
+      setTimeout(() => g.style.outline = 'none', 1500); return;
+    }
+    if (!window._responses) window._responses = [];
+    if (!window._responses[ci]) window._responses[ci] = { secs: {} };
+    const r = window._responses[ci];
+    const tweet = TWEETS[ci];
+
+    loading(true);
+    try {
+      await api('POST', {
+        action: 'guardar_respuesta',
+        documento: studentId,
+        tweet_id: tweet.id,
+        dataset: tweet.dataset,
+        sec1: r.secs.sec1 || '',
+        sec2: r.secs.sec2 || '',
+        sec3: r.secs.sec3 || '',
+        sec4: r.secs.sec4 || '',
+        justificacion: ta ? ta.value.trim() : '',
+        clasificacion: selectedClass
+      });
+    } catch(e) { /* continuar */ }
+    finally { loading(false); }
+
+    if (ci + 1 < TWEETS.length) {
+      showContext(ci + 1);
+    } else {
+      loading(true);
+      try { await api('POST', { action: 'completar', documento: studentId }); }
+      catch(e) {}
+      finally { loading(false); }
+      show('s-done');
+    }
+  }
+}
+
+function goBack() {
+  const { ci, si } = currentData;
+  if (si > 0) loadSec(ci, si-1);
+  else showContext(ci);
+}
+</script>
+</body>
+</html>
