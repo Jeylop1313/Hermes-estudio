@@ -310,7 +310,7 @@ function toggleConsent() {
 
 function formatTweet(tweet) {
   const text = tweet.traduccion || tweet.tweet;
-  return (tweet.autor ? tweet.autor + ': ' : '') + text;
+  return 'Autor: ' + text;
 }
 
 // ── JSONP helper (reemplaza fetch GET para evitar CORS) ───────
