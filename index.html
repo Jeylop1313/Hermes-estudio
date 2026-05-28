@@ -82,8 +82,32 @@ select option{background:#161B22;color:#E6EDF3;}
 
 <div class="app">
 
+<!-- CONSENTIMIENTO INFORMADO -->
+<div id="s-consent" class="screen active">
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;">
+      <div class="logo-box"><i class="ti ti-shield-check" style="font-size:18px;color:#fff;"></i></div>
+      <div><div class="app-name">Consentimiento informado</div><div class="app-sub">Ley 1581 de 2012 — Protección de datos personales</div></div>
+    </div>
+    <div style="font-size:13px;color:#8B949E;line-height:1.7;max-height:340px;overflow-y:auto;padding-right:6px;margin-bottom:1.25rem;">
+      <p style="margin-bottom:10px;">Al participar en este estudio, autoriza de manera libre, previa, expresa e informada el tratamiento de sus datos personales conforme a la Ley Estatutaria 1581 de 2012 y el Decreto 1377 de 2013.</p>
+      <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Responsable del tratamiento:</strong> Jeison Duván Rodríguez Alvarado, estudiante de Psicología, Universidad Nacional de Colombia.</p>
+      <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Finalidad:</strong> Los datos recolectados (número de documento, edad, sexo, carrera, semestre y respuestas de evaluación) serán utilizados exclusivamente con fines académicos e investigativos en el marco del trabajo de grado titulado <em>HERMES: Arquitectura agente para análisis pragmático de sentimiento</em>.</p>
+      <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Tratamiento:</strong> Sus datos serán almacenados en una base de datos de acceso restringido. No serán compartidos con terceros, comercializados ni utilizados para fines distintos a los aquí descritos. Los resultados se reportarán de forma agregada y anónima.</p>
+      <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Derechos del titular (Art. 8):</strong> Usted tiene derecho a conocer, actualizar, rectificar y solicitar la supresión de sus datos personales, así como a revocar esta autorización en cualquier momento, comunicándose con el responsable del tratamiento.</p>
+      <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Carácter facultativo:</strong> La participación en este estudio es completamente voluntaria. Puede retirarse en cualquier momento sin consecuencia alguna.</p>
+      <p><strong style="color:#C9D1D9;">Contacto:</strong> jealopezji@unal.edu.co</p>
+    </div>
+    <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:1.25rem;" onclick="toggleConsent()">
+      <input type="checkbox" id="consent-check" style="margin-top:3px;accent-color:#1D9E75;width:16px;height:16px;flex-shrink:0;">
+      <span style="font-size:13px;color:#C9D1D9;line-height:1.5;">He leído y acepto el tratamiento de mis datos personales conforme a lo descrito anteriormente y a la Ley 1581 de 2012.</span>
+    </label>
+    <button class="btn btn-primary btn-block" id="btn-consent" disabled onclick="show('s-login')">Continuar <i class="ti ti-arrow-right"></i></button>
+  </div>
+</div>
+
 <!-- LOGIN -->
-<div id="s-login" class="screen active">
+<div id="s-login" class="screen">
   <div class="card">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;">
       <div class="logo-box"><i class="ti ti-brain" style="font-size:18px;color:#fff;"></i></div>
@@ -159,7 +183,7 @@ select option{background:#161B22;color:#E6EDF3;}
       <div class="tweet-card" style="margin-top:10px;">
         <div style="display:flex;align-items:center;gap:6px;">
           <i class="ti ti-brand-twitter" style="font-size:14px;color:#3FB884;"></i>
-          <span class="tweet-pill" id="ctx-dataset">SemEval 2017</span>
+          <span class="tweet-pill" id="ctx-dataset">TASS</span>
         </div>
         <p class="tweet-text" id="ctx-tweet-trad"></p>
       </div>
@@ -180,7 +204,7 @@ select option{background:#161B22;color:#E6EDF3;}
     <div class="tweet-card">
       <div style="display:flex;align-items:center;gap:6px;">
         <i class="ti ti-brand-twitter" style="font-size:14px;color:#3FB884;"></i>
-        <span class="tweet-pill" id="tweet-dataset">SemEval 2017</span>
+        <span class="tweet-pill" id="tweet-dataset">TASS</span>
       </div>
       <p class="tweet-text" id="tweet-trad"></p>
     </div>
@@ -211,9 +235,9 @@ const SECS = [
     num:1, name:'Relevancia',
     intro:'Lee el comentario y explica, con tus propias palabras, qué está pasando y por qué este evento podría ser relevante para el autor. Ten presente que el análisis es sobre quien escribió el comentario.',
     questions:[
-      '¿El autor reacciona como si esto fuera algo nuevo, inesperado, o distinto a lo que anticipaba?',
+      '¿El autor señala que el evento lo tomó por sorpresa, que no lo había visto antes, o que es distinto a lo que esperaba?',
       '¿Las palabras que elige el autor transmiten agrado o rechazo hacia lo que está describiendo?',
-      '¿Hay algo personal en juego para la identidad del autor, sus valores, algo que le importa profundamente?'
+      '¿El comentario indica que el resultado de este evento le afecta directamente al autor?'
     ]
   },
   {
@@ -222,17 +246,17 @@ const SECS = [
     questions:[
       '¿A quién o a qué le atribuye el autor la responsabilidad de lo que ocurrió?',
       '¿El autor expresa que lo que ocurrió es diferente a lo que esperaba?',
-      '¿Las palabras del autor sugieren que este evento favorece o perjudica algo que le importa?',
-      '¿El autor transmite que esto requiere atención o acción inmediata?'
+      '¿Las palabras del autor indican que este evento facilita, bloquea o abre una posibilidad respecto a algo que persigue o necesita?',
+      '¿El autor señala que este evento no puede esperar, o que ignorarlo tendría consecuencias?'
     ]
   },
   {
     num:3, name:'Afrontamiento',
     intro:'Basándote en los pasos anteriores, analiza si el autor siente que puede hacer algo ante esta situación — si tiene control, recursos para actuar, o si muestra señales de adaptarse.',
     questions:[
-      '¿El autor sugiere que esta situación puede ser modificada o prevenida?',
-      '¿El autor indica que tiene o no los recursos necesarios para actuar?',
-      '¿El autor muestra indicios de reencuadrar la situación o encontrar una salida alternativa?'
+      '¿El autor trata esta situación como solucionable o como permanente?',
+      '¿El autor indica que tiene o no la capacidad para actuar sobre esta situación?',
+      '¿El autor muestra indicios de adaptarse, resignarse o vivir con las consecuencias de una situación que no puede cambiar?'
     ]
   },
   {
@@ -240,7 +264,7 @@ const SECS = [
     intro:'Basándote en los pasos anteriores, analiza si el autor está defendiendo un valor personal o apelando a una norma social.',
     questions:[
       '¿El autor sugiere que esta situación contradice o reafirma sus propios valores?',
-      '¿El autor apela a lo que su entorno social consideraría aceptable o esperaría de alguien en esta situación?'
+      '¿El autor evalúa la situación basándose en lo que su entorno social consideraría aceptable o esperaría de alguien?'
     ]
   }
 ];
@@ -277,6 +301,16 @@ function selectRadio(el, group, val) {
   document.querySelectorAll('#' + group + ' .radio-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
   radioVals[group] = val;
+}
+
+function toggleConsent() {
+  const cb = document.getElementById('consent-check');
+  document.getElementById('btn-consent').disabled = !cb.checked;
+}
+
+function formatTweet(tweet) {
+  const text = tweet.traduccion || tweet.tweet;
+  return (tweet.autor ? tweet.autor + ': ' : '') + text;
 }
 
 // ── JSONP helper (reemplaza fetch GET para evitar CORS) ───────
@@ -364,8 +398,8 @@ async function submitSocio() {
 function showContext(ci) {
   const tweet = TWEETS[ci];
   document.getElementById('ctx-badge').textContent = 'Comentario ' + (ci+1) + ' de ' + TWEETS.length;
-  document.getElementById('ctx-tweet-trad').textContent = tweet.traduccion || tweet.tweet;
-  document.getElementById('ctx-dataset').textContent = 'SemEval ' + tweet.dataset;
+  document.getElementById('ctx-tweet-trad').textContent = formatTweet(tweet);
+  document.getElementById('ctx-dataset').textContent = tweet.dataset;
   commentIdx = ci;
   show('s-ctx');
 }
@@ -378,8 +412,8 @@ function loadSec(ci, si) {
   commentIdx = ci; secIdx = si; selectedClass = null;
   const tweet = TWEETS[ci];
   document.getElementById('comment-badge').textContent = 'Comentario ' + (ci+1) + ' de ' + TWEETS.length;
-  document.getElementById('tweet-trad').textContent = tweet.traduccion || tweet.tweet;
-  document.getElementById('tweet-dataset').textContent = 'SemEval ' + tweet.dataset;
+  document.getElementById('tweet-trad').textContent = formatTweet(tweet);
+  document.getElementById('tweet-dataset').textContent = tweet.dataset;
   buildStepper(si);
 
   const content = document.getElementById('sec-content');
@@ -401,8 +435,12 @@ function loadSec(ci, si) {
   } else {
     const isIrony = tweet.dataset === '2018';
     const opts = isIrony
-      ? [{val:'irony',label:'Ironía'},{val:'not_irony',label:'No ironía'}]
-      : [{val:'positive',label:'Positivo'},{val:'neutral',label:'Neutro'},{val:'negative',label:'Negativo'}];
+      ? [{val:'irony',label:'Ironía',desc:'El autor dice algo que contradice lo que realmente quiere expresar.'},
+         {val:'not_irony',label:'No ironía',desc:'El autor expresa su mensaje de forma literal y directa.'}]
+      : [{val:'positive',label:'Positivo',desc:'El autor expresa una valoración favorable, satisfacción o entusiasmo.'},
+         {val:'neutral',label:'Neutro',desc:'El autor informa o comenta sin expresar una valoración clara a favor o en contra.'},
+         {val:'negative',label:'Negativo',desc:'El autor expresa rechazo, molestia, frustración o desaprobación.'},
+         {val:'none',label:'Sin sentimiento',desc:'El comentario no contiene carga emocional ni valorativa; es puramente informativo o factual.'}];
     content.innerHTML = `
       <div class="sec-label">
         <div class="sec-num" style="background:#B08010;"><i class="ti ti-tag" style="font-size:11px;color:#fff;"></i></div>
@@ -418,7 +456,10 @@ function loadSec(ci, si) {
         ${opts.map(o => `
           <label class="radio-option" onclick="selectClass(this,'${o.val}')">
             <span class="radio-circle"></span>
-            <span>${o.label}</span>
+            <div>
+              <span>${o.label}</span>
+              <p style="font-size:12px;color:#7D8590;margin-top:3px;font-weight:400;line-height:1.4;">${o.desc}</p>
+            </div>
           </label>`).join('')}
       </div>`;
     document.getElementById('btn-next').innerHTML = (ci+1 < TWEETS.length)
