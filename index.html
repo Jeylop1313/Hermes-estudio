@@ -92,7 +92,7 @@ select option{background:#161B22;color:#E6EDF3;}
     <div style="font-size:13px;color:#8B949E;line-height:1.7;max-height:340px;overflow-y:auto;padding-right:6px;margin-bottom:1.25rem;">
       <p style="margin-bottom:10px;">Al participar en este estudio, autoriza de manera libre, previa, expresa e informada el tratamiento de sus datos personales conforme a la Ley Estatutaria 1581 de 2012 y el Decreto 1377 de 2013.</p>
       <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Responsable del tratamiento:</strong> Jeison Duván Rodríguez Alvarado, estudiante de Psicología, Universidad Nacional de Colombia.</p>
-      <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Finalidad:</strong> Los datos recolectados (número de documento, edad, sexo, carrera, semestre y respuestas de evaluación) serán utilizados exclusivamente con fines académicos e investigativos en el marco del trabajo de grado titulado <em>HERMES: Arquitectura agente para análisis pragmático de sentimiento</em>.</p>
+      <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Finalidad:</strong> Los datos recolectados (correo institucional, edad, sexo, carrera, semestre y respuestas de evaluación) serán utilizados exclusivamente con fines académicos e investigativos en el marco del trabajo de grado titulado <em>HERMES: Arquitectura agente para análisis pragmático de sentimiento</em>.</p>
       <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Tratamiento:</strong> Sus datos serán almacenados en una base de datos de acceso restringido. No serán compartidos con terceros, comercializados ni utilizados para fines distintos a los aquí descritos. Los resultados se reportarán de forma agregada y anónima.</p>
       <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Derechos del titular (Art. 8):</strong> Usted tiene derecho a conocer, actualizar, rectificar y solicitar la supresión de sus datos personales, así como a revocar esta autorización en cualquier momento, comunicándose con el responsable del tratamiento.</p>
       <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Carácter facultativo:</strong> La participación en este estudio es completamente voluntaria. Puede retirarse en cualquier momento sin consecuencia alguna.</p>
@@ -116,8 +116,8 @@ select option{background:#161B22;color:#E6EDF3;}
     <p style="font-size:14px;color:#7D8590;line-height:1.6;margin-bottom:1.5rem;">Evaluarás <strong style="color:#E6EDF3;">3 comentarios de Twitter</strong> aplicando el Modelo de Proceso Componente de Scherer. Por cada comentario completarás 4 pasos de razonamiento y una clasificación final. No hay respuestas correctas o incorrectas.</p>
     <div id="login-error" class="error-msg"></div>
     <div class="field">
-      <label>Número de documento</label>
-      <input type="text" id="student-id" placeholder="Ingresa tu número de documento" />
+      <label>Correo institucional</label>
+      <input type="email" id="student-id" placeholder="Ingresa tu correo" />
     </div>
     <button class="btn btn-primary btn-block" id="btn-login" onclick="startSession()">Continuar <i class="ti ti-arrow-right"></i></button>
   </div>
@@ -348,6 +348,10 @@ async function apiPOST(params) {
 async function startSession() {
   const v = document.getElementById('student-id').value.trim();
   if (!v) { document.getElementById('student-id').focus(); return; }
+  if (!v.endsWith('@unal.edu.co')) {
+  showError('login-error', 'Por favor ingresa tu correo institucional (@unal.edu.co).');
+  return;
+}
   hideError('login-error');
   loading(true);
   document.getElementById('btn-login').disabled = true;
