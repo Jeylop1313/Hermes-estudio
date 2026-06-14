@@ -94,6 +94,7 @@ select option{background:#161B22;color:#E6EDF3;}
       <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Responsable del tratamiento:</strong> Yeison Alejandro López Jiménez, estudiante de Psicología, Universidad Nacional de Colombia.</p>
       <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Finalidad:</strong> Los datos recolectados (correo institucional, edad, sexo, carrera, semestre y respuestas de evaluación) serán utilizados exclusivamente con fines académicos e investigativos en el marco del trabajo de grado.</p>
       <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Tratamiento:</strong> Sus datos serán almacenados en una base de datos de acceso restringido. No serán compartidos con terceros, comercializados ni utilizados para fines distintos a los aquí descritos. Los resultados se reportarán de forma agregada y anónima.</p>
+      <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Anonimización:</strong> Sus respuestas de evaluación se almacenan vinculadas a un identificador anónimo (hash criptográfico), separado de su información personal. Esto garantiza que los datos de análisis no pueden asociarse directamente a su identidad.</p>
       <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Derechos del titular (Art. 8):</strong> Usted tiene derecho a conocer, actualizar, rectificar y solicitar la supresión de sus datos personales, así como a revocar esta autorización en cualquier momento, comunicándose con el responsable del tratamiento.</p>
       <p style="margin-bottom:10px;"><strong style="color:#C9D1D9;">Carácter facultativo:</strong> La participación en este estudio es completamente voluntaria. Puede retirarse en cualquier momento sin consecuencia alguna.</p>
       <p><strong style="color:#C9D1D9;">Contacto:</strong> jealopezji@unal.edu.co</p>
@@ -166,7 +167,7 @@ select option{background:#161B22;color:#E6EDF3;}
     </div>
     <div class="nav-row">
       <button class="btn btn-secondary" onclick="show('s-login')"><i class="ti ti-arrow-left"></i> Atrás</button>
-      <button class="btn btn-primary" onclick="submitSocio()">Comenzar evaluación <i class="ti ti-arrow-right"></i></button>
+      <button class="btn btn-primary" id="btn-socio" onclick="submitSocio()">Comenzar evaluación <i class="ti ti-arrow-right"></i></button>
     </div>
   </div>
 </div>
@@ -235,8 +236,8 @@ const SECS = [
     num:1, name:'Relevancia',
     intro:'Lee el comentario y explica, con tus propias palabras, qué está pasando y por qué este evento podría ser relevante para el autor. Ten presente que el análisis es sobre quien escribió el comentario.',
     questions:[
-      '¿El autor da señales de que este evento le resulta novedoso?',
-      '¿Las palabras que elige el autor transmiten agrado o desagrado hacia lo que está describiendo?',
+      '¿El autor señala que el evento lo tomó por sorpresa, que no lo había visto antes, o que es distinto a lo que esperaba?',
+      '¿Las palabras que elige el autor transmiten agrado o rechazo hacia lo que está describiendo?',
       '¿El comentario indica que el resultado de este evento le afecta directamente al autor?'
     ]
   },
@@ -270,11 +271,15 @@ const SECS = [
 ];
 
 const radioVals = {};
-let commentIdx = 0, secIdx = 0, selectedClass = null, studentId = '';
+let commentIdx = 0, secIdx = 0, selectedClass = null;
+let studentId = '';   // correo — solo para bio, ping, completar
+let anonId = '';      // hash — para guardar respuestas
 let TWEETS = [];
 let socioData = {};
 let currentData = {};
 let dataset = '';
+let pingInterval = null;
+let _busy = false;    // guard anti-doble-clic
 
 // ── Helpers ──────────────────────────────────────────────────
 function show(id) {
@@ -313,7 +318,21 @@ function formatTweet(tweet) {
   return 'Autor: ' + text;
 }
 
-// ── JSONP helper (reemplaza fetch GET para evitar CORS) ───────
+// ── Heartbeat ────────────────────────────────────────────────
+function startHeartbeat() {
+  stopHeartbeat();
+  pingInterval = setInterval(() => {
+    if (studentId) {
+      apiPOST({ action: 'ping', documento: studentId }).catch(() => {});
+    }
+  }, 5 * 60 * 1000);
+}
+
+function stopHeartbeat() {
+  if (pingInterval) { clearInterval(pingInterval); pingInterval = null; }
+}
+
+// ── JSONP helper ─────────────────────────────────────────────
 function apiGET(params) {
   return new Promise((resolve, reject) => {
     const cbName = 'cb_' + Date.now();
@@ -346,34 +365,40 @@ async function apiPOST(params) {
 
 // ── 1. Login ─────────────────────────────────────────────────
 async function startSession() {
+  if (_busy) return;
   const v = document.getElementById('student-id').value.trim();
   if (!v) { document.getElementById('student-id').focus(); return; }
   if (!v.endsWith('@unal.edu.co')) {
-  showError('login-error', 'Por favor ingresa tu correo institucional (@unal.edu.co).');
-  return;
-}
+    showError('login-error', 'Por favor ingresa tu correo institucional (@unal.edu.co).');
+    return;
+  }
   hideError('login-error');
+  _busy = true;
   loading(true);
   document.getElementById('btn-login').disabled = true;
   try {
     const res = await apiGET({ action: 'registrar', documento: v });
     if (res.error) { showError('login-error', 'Error: ' + res.error); return; }
     studentId = v;
+    anonId = res.id_anonimo;
     dataset = res.dataset;
     const tw = await apiGET({ action: 'tweets', documento: v });
     if (tw.error) { showError('login-error', 'Error cargando tweets: ' + tw.error); return; }
     TWEETS = tw.tweets;
+    startHeartbeat();
     show('s-socio');
   } catch(e) {
     showError('login-error', 'No se pudo conectar al servidor. Verifica tu conexión.');
   } finally {
     loading(false);
     document.getElementById('btn-login').disabled = false;
+    _busy = false;
   }
 }
 
 // ── 2. Datos sociodemográficos ────────────────────────────────
 async function submitSocio() {
+  if (_busy) return;
   const edad     = document.getElementById('edad').value.trim();
   const sexo     = document.getElementById('sexo').value;
   const carrera  = document.getElementById('carrera').value.trim();
@@ -390,11 +415,17 @@ async function submitSocio() {
   }
 
   socioData = { edad, sexo, carrera, semestre, twitter_frecuencia: twitter };
+  _busy = true;
   loading(true);
+  document.getElementById('btn-socio').disabled = true;
   try {
     await apiPOST({ action: 'bio', documento: studentId, ...socioData });
   } catch(e) { /* continuar aunque falle */ }
-  finally { loading(false); }
+  finally {
+    loading(false);
+    document.getElementById('btn-socio').disabled = false;
+    _busy = false;
+  }
   showContext(0);
 }
 
@@ -435,7 +466,14 @@ function loadSec(ci, si) {
         ${qHtml}
       </div>
       <textarea id="sec-textarea" placeholder="Escribe tu razonamiento aquí..."></textarea>`;
+
+    // Restaurar texto si ya se había escrito (navegación atrás)
+    if (window._responses && window._responses[ci] && window._responses[ci].secs['sec' + (si+1)]) {
+      document.getElementById('sec-textarea').value = window._responses[ci].secs['sec' + (si+1)];
+    }
+
     document.getElementById('btn-next').innerHTML = 'Siguiente <i class="ti ti-arrow-right"></i>';
+    document.getElementById('btn-next').disabled = false;
   } else {
     const isIrony = tweet.dataset === '2018';
     const opts = isIrony
@@ -469,6 +507,7 @@ function loadSec(ci, si) {
     document.getElementById('btn-next').innerHTML = (ci+1 < TWEETS.length)
       ? 'Siguiente comentario <i class="ti ti-arrow-right"></i>'
       : 'Finalizar <i class="ti ti-check"></i>';
+    document.getElementById('btn-next').disabled = false;
   }
   currentData = { ci, si };
 }
@@ -497,7 +536,9 @@ function selectClass(el, val) {
 }
 
 async function goNext() {
+  if (_busy) return; // ← anti-doble-clic
   const { ci, si } = currentData;
+
   if (si < 4) {
     const ta = document.getElementById('sec-textarea');
     if (!ta || !ta.value.trim()) {
@@ -520,11 +561,16 @@ async function goNext() {
     const r = window._responses[ci];
     const tweet = TWEETS[ci];
 
+    // ── Anti-doble-clic: bloquear botón durante POST ──
+    _busy = true;
+    const btn = document.getElementById('btn-next');
+    btn.disabled = true;
     loading(true);
+
     try {
-      await apiPOST({
+      const res = await apiPOST({
         action: 'guardar_respuesta',
-        documento: studentId,
+        id_anonimo: anonId,          // ← hash, NO el correo
         tweet_id: tweet.id,
         dataset: tweet.dataset,
         sec1: r.secs.sec1 || '',
@@ -534,16 +580,46 @@ async function goNext() {
         justificacion: ta ? ta.value.trim() : '',
         clasificacion: selectedClass
       });
-    } catch(e) { /* continuar */ }
-    finally { loading(false); }
+
+      if (res.duplicado) {
+        console.log('Respuesta duplicada detectada, continuando...');
+      }
+    } catch(e) {
+      // Reintentar una vez
+      try {
+        await apiPOST({
+          action: 'guardar_respuesta',
+          id_anonimo: anonId,
+          tweet_id: tweet.id,
+          dataset: tweet.dataset,
+          sec1: r.secs.sec1 || '',
+          sec2: r.secs.sec2 || '',
+          sec3: r.secs.sec3 || '',
+          sec4: r.secs.sec4 || '',
+          justificacion: ta ? ta.value.trim() : '',
+          clasificacion: selectedClass
+        });
+      } catch(e2) {
+        alert('No se pudo guardar la respuesta. Verifica tu conexión e intenta de nuevo.');
+        btn.disabled = false;
+        _busy = false;
+        loading(false);
+        return; // No avanzar si falla dos veces
+      }
+    } finally {
+      loading(false);
+    }
 
     if (ci + 1 < TWEETS.length) {
+      btn.disabled = false;
+      _busy = false;
       showContext(ci + 1);
     } else {
-      loading(true);
       try { await apiPOST({ action: 'completar', documento: studentId }); }
       catch(e) {}
-      finally { loading(false); }
+      stopHeartbeat();
+      btn.disabled = false;
+      _busy = false;
       show('s-done');
     }
   }
