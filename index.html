@@ -368,8 +368,8 @@ async function startSession() {
   if (_busy) return;
   const v = document.getElementById('student-id').value.trim();
   if (!v) { document.getElementById('student-id').focus(); return; }
-  if (!v.endsWith('@unal.edu.co')) {
-    showError('login-error', 'Por favor ingresa tu correo institucional (@unal.edu.co).');
+  if (!v.includes('@') || !v.includes('.')) {
+    showError('login-error', 'Por favor ingresa un correo electrónico válido.');
     return;
   }
   hideError('login-error');
